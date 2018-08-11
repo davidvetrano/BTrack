@@ -284,10 +284,45 @@ static PyObject * btrack_trackBeatsFromOnsetDF(PyObject *dummy, PyObject *args)
 }
 
 //=======================================================================
+BTrack globalB(512,512);
+static PyObject * btrack_processAudioFrame(PyObject *dummy, PyObject *args)
+{
+    PyObject *arg1=NULL;
+    PyObject *arr1=NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &arg1))
+    {
+        return NULL;
+    }
+
+    arr1 = PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_IN_ARRAY);
+    if (arr1 == NULL)
+    {
+        return NULL;
+    }
+
+    ////////// GET INPUT DATA ///////////////////
+
+    double* data = (double*) PyArray_DATA(arr1);
+    double buffer[512];	// buffer to hold one hopsize worth of audio samples
+
+    globalB.processAudioFrame(buffer);
+
+    if (globalB.beatDueInCurrentFrame()) {
+        Py_INCREF(Py_True);
+        return Py_True;
+    } else {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+}
+
+//=======================================================================
 static PyMethodDef btrack_methods[] = {
     { "calculateOnsetDF",btrack_calculateOnsetDF,METH_VARARGS,"Calculate the onset detection function"},
     { "trackBeats",btrack_trackBeats,METH_VARARGS,"Track beats from audio"},
     { "trackBeatsFromOnsetDF",btrack_trackBeatsFromOnsetDF,METH_VARARGS,"Track beats from an onset detection function"},
+    { "processAudioFrame",btrack_processAudioFrame,METH_VARARGS,"Process a single audio frame"},
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
