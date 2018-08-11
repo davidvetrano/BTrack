@@ -304,9 +304,7 @@ static PyObject * btrack_processAudioFrame(PyObject *dummy, PyObject *args)
     ////////// GET INPUT DATA ///////////////////
 
     double* data = (double*) PyArray_DATA(arr1);
-    double buffer[512];	// buffer to hold one hopsize worth of audio samples
-
-    globalB.processAudioFrame(buffer);
+    globalB.processAudioFrame(data);
 
     if (globalB.beatDueInCurrentFrame()) {
         Py_INCREF(Py_True);
